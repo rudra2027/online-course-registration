@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include('includes/config.php');
@@ -7,22 +6,23 @@ if(strlen($_SESSION['alogin'])==0)
 header('location:index.php');
 }
 else{
+$id=intval($_GET['id']);
 date_default_timezone_set('Asia/Kolkata');// change according timezone
 $currentTime = date( 'd-m-Y h:i:s A', time () );
-
-
 if(isset($_POST['submit']))
 {
-$sql=mysqli_query($con,"SELECT password FROM  admin where password='".md5($_POST['cpass'])."' && username='".$_SESSION['alogin']."'");
-$num=mysqli_fetch_array($sql);
-if($num>0)
+$coursecode=$_POST['coursecode'];
+$coursename=$_POST['coursename'];
+$courseunit=$_POST['courseunit'];
+$seatlimit=$_POST['seatlimit'];
+$ret=mysqli_query($con,"update course set courseCode='$coursecode',courseName='$coursename',courseUnit='$courseunit',noofSeats='$seatlimit',updationDate='$currentTime' where id='$id'");
+if($ret)
 {
- $con=mysqli_query($con,"update admin set password='".md5($_POST['newpass'])."', updationDate='$currentTime' where username='".$_SESSION['alogin']."'");
-$_SESSION['msg']="Password Changed Successfully !!";
+$_SESSION['msg']="Course Updated Successfully !!";
 }
 else
 {
-$_SESSION['msg']="Old Password not match !!";
+  $_SESSION['msg']="Error : Course not Updated";
 }
 }
 ?>
@@ -34,41 +34,12 @@ $_SESSION['msg']="Old Password not match !!";
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Admin | Change Password</title>
+    <title>Admin | Course</title>
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <link href="assets/css/font-awesome.css" rel="stylesheet" />
     <link href="assets/css/style.css" rel="stylesheet" />
 </head>
-<script type="text/javascript">
-function valid()
-{
-if(document.chngpwd.cpass.value=="")
-{
-alert("Current Password Filed is Empty !!");
-document.chngpwd.cpass.focus();
-return false;
-}
-else if(document.chngpwd.newpass.value=="")
-{
-alert("New Password Filed is Empty !!");
-document.chngpwd.newpass.focus();
-return false;
-}
-else if(document.chngpwd.cnfpass.value=="")
-{
-alert("Confirm Password Filed is Empty !!");
-document.chngpwd.cnfpass.focus();
-return false;
-}
-else if(document.chngpwd.newpass.value!= document.chngpwd.cnfpass.value)
-{
-alert("Password and Confirm Password Field do not match  !!");
-document.chngpwd.cnfpass.focus();
-return false;
-}
-return true;
-}
-</script>
+
 <body>
 <?php include('includes/header.php');?>
     <!-- LOGO HEADER END-->
@@ -82,7 +53,7 @@ return true;
         <div class="container">
               <div class="row">
                     <div class="col-md-12">
-                        <h1 class="page-head-line">Admin Change Password </h1>
+                        <h1 class="page-head-line">Course  </h1>
                     </div>
                 </div>
                 <div class="row" >
@@ -90,38 +61,56 @@ return true;
                     <div class="col-md-6">
                         <div class="panel panel-default">
                         <div class="panel-heading">
-                           Change Password
+                           Course 
                         </div>
 <font color="green" align="center"><?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?></font>
 
 
                         <div class="panel-body">
-                       <form name="chngpwd" method="post" onSubmit="return valid();">
+                       <form name="dept" method="post">
+<?php
+$sql=mysqli_query($con,"select * from course where id='$id'");
+$cnt=1;
+while($row=mysqli_fetch_array($sql))
+{
+?>
+<p><b>Last Updated at</b> :<?php echo htmlentities($row['updationDate']);?></p>
    <div class="form-group">
-    <label for="exampleInputPassword1">Current Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" name="cpass" placeholder="Password" />
+    <label for="coursecode">Course Code  </label>
+    <input type="text" class="form-control" id="coursecode" name="coursecode" placeholder="Course Code" value="<?php echo htmlentities($row['courseCode']);?>" required />
   </div>
-   <div class="form-group">
-    <label for="exampleInputPassword1">New Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword2" name="newpass" placeholder="Password" />
+
+ <div class="form-group">
+    <label for="coursename">Course Name  </label>
+    <input type="text" class="form-control" id="coursename" name="coursename" placeholder="Course Name" value="<?php echo htmlentities($row['courseName']);?>" required />
   </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Confirm Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword3" name="cnfpass" placeholder="Password" />
-  </div>
- 
-  <button type="submit" name="submit" class="btn btn-default">Submit</button>
-                           <hr />
-   
+
+<div class="form-group">
+    <label for="courseunit">Course unit  </label>
+    <input type="text" class="form-control" id="courseunit" name="courseunit" placeholder="Course Unit" value="<?php echo htmlentities($row['courseUnit']);?>" required />
+  </div>  
+
+<div class="form-group">
+    <label for="seatlimit">Seat limit  </label>
+    <input type="text" class="form-control" id="seatlimit" name="seatlimit" placeholder="Seat limit" value="<?php echo htmlentities($row['noofSeats']);?>" required />
+  </div>  
 
 
-
+<?php } ?>
+ <button type="submit" name="submit" class="btn btn-default"><i class=" fa fa-refresh "></i> Update</button>
 </form>
                             </div>
                             </div>
                     </div>
                   
                 </div>
+                
+            </div>
+
+
+
+
+
         </div>
     </div>
     <!-- CONTENT-WRAPPER SECTION END-->
